@@ -5,6 +5,9 @@ from sklearn.metrics import mean_squared_error as mse
 from sklearn.metrics import auc
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.svm import SVR
+from sklearn.neural_network import MLPRegressor
 from xgboost import XGBRegressor
 from scipy.stats import entropy
 import warnings
@@ -29,7 +32,7 @@ KEY_GENERATED_DATA = "generated_data"
 KEY_ACTUAL = "Actuals"
 
 RANDOM_SEED = 42
-LOAD_DATA = False
+LOAD_DATA = True
 
 if not os.path.exists('./results/experiment_1/'):
     os.mkdir('./results/experiment_1/')
@@ -66,7 +69,6 @@ def distr_plot_single_sim(
     global_upper = np.percentile(np.hstack(preds_for_plot.values()), 99)
     learners = list(preds_for_plot.keys())
     learners = [learner for learner in learners if learner not in drop_learners]
-    print(learners)
 
     # Plotting
     plt.figure(figsize=(12, 8))
@@ -263,13 +265,13 @@ def get_synthetic_summary_holdout(synthetic_data_func, n=1000, valid_size=0.2, k
           - summary_train (pandas.DataFrame): validation data evaluation summary
     """
     if LOAD_DATA:
-        with open('preds_dict_train.pkl', 'rb') as handle:
+        with open('results/experiment_1/preds_dict_train.pkl', 'rb') as handle:
             preds_dict_train = pickle.load(handle)
-        with open('preds_dict_valid.pkl', 'rb') as handle:
+        with open('results/experiment_1/preds_dict_valid.pkl', 'rb') as handle:
             preds_dict_valid = pickle.load(handle)
-        with open('summaries_train.pkl', 'rb') as handle:
+        with open('results/experiment_1/summaries_train.pkl', 'rb') as handle:
             summaries_train = pickle.load(handle)
-        with open('summaries_validation.pkl', 'rb') as handle:
+        with open('results/experiment_1/summaries_validation.pkl', 'rb') as handle:
             summaries_validation = pickle.load(handle)
     else:
 
@@ -358,13 +360,14 @@ def get_synthetic_summary_holdout(synthetic_data_func, n=1000, valid_size=0.2, k
         with open('results/experiment_1/summaries_validation.pkl', 'wb') as handle:
             pickle.dump(summaries_validation, handle, protocol=pickle.HIGHEST_PROTOCOL)
     
-    print(preds_dict_train.keys())
-    plot_dist(preds_dict_train, ['S Learner (MBR_LR)', 'S Learner (LR)', 'S Learner (XGB)'], 'results/experiment_1/train_dist.png')
-    plot_dist(preds_dict_valid, ['S Learner (MBR_LR)', 'S Learner (LR)', 'S Learner (XGB)'], 'results/experiment_1/valid_dist.png')
+    S_learner_names = [x for x in list(preds_dict_train.keys()) if x[0]=='S']
+
+    plot_dist(preds_dict_train, S_learner_names, 'results/experiment_1/train_dist.png')
+    plot_dist(preds_dict_valid, S_learner_names, 'results/experiment_1/valid_dist.png')
     distr_plot_single_sim(preds_dict_train, 'results/experiment_1/single_sim_dist_train.png', kind='kde', linewidth=2, bw_method=0.5,
-                      drop_learners=[KEY_ACTUAL, 'S Learner (MBR_LR)', 'S Learner (LR)', 'S Learner (XGB)'])
+                      drop_learners=[KEY_ACTUAL] + list(preds_dict_train.keys()))
     distr_plot_single_sim(preds_dict_valid, 'results/experiment_1/single_sim_dist_valid.png', kind='kde', linewidth=2, bw_method=0.5,
-                      drop_learners=[KEY_ACTUAL, 'S Learner (MBR_LR)', 'S Learner (LR)', 'S Learner (XGB)'])
+                      drop_learners=[KEY_ACTUAL] + list(preds_dict_train.keys()))
     #scatter_plot_summary(preds_dict_train, 'scatterplot_dist_train.png', k = k)
     #scatter_plot_summary(preds_dict_valid, 'scatterplot_dist_valid.png', k = k)
     summary_train = sum(summaries_train) / k
@@ -439,7 +442,19 @@ def get_synthetic_preds_holdout(
         [BaseSRegressor, BaseTRegressor, BaseXRegressor],
         ["S", "T", "X"],
     ):
-        for model, label_m in zip([LinearRegression, XGBRegressor, lambda: MyBaggingRegressor(LinearRegression()), ], ["LR", "XGB", "MBR_LR"]):
+        for model, label_m in zip([LinearRegression, XGBRegressor, SVR, DecisionTreeRegressor, MLPRegressor,
+                                   lambda: MyBaggingRegressor(LinearRegression()), 
+                                   lambda: MyBaggingRegressor(SVR()),
+                                   lambda: MyBaggingRegressor(DecisionTreeRegressor(max_depth=3)),
+                                   lambda: MyBaggingRegressor(MLPRegressor()),
+                                   lambda: MyAdaBoostRegressor(LinearRegression()), 
+                                   lambda: MyAdaBoostRegressor(SVR()),
+                                   lambda: MyAdaBoostRegressor(DecisionTreeRegressor(max_depth=3)),
+                                   lambda: MyAdaBoostRegressor(MLPRegressor()),
+                                   lambda: MyTreeBaggingRegressor(3)], ["LR", "XGB", 'SVR','Decision_Tree','MLP'
+                                                                        "Bagging_LR", "Bagging_SVR", "Bagging_DT", "Bagging_MLP", 
+                                                                        "Adaboost_LR","Adaboost_SVR","Adaboost_DT","Adaboost_MLP",
+                                                                        "Random_Forest"]):
             # RLearner will need to fit on the p_hat
             if label_l != "R":
                 learner = base_learner(model())

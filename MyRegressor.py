@@ -12,12 +12,6 @@ def MyBaggingRegressor(base_model):
         random_state = 0
     )
 
-def MyTreeBaggingRegressor(depth):
-
-    return RandomForestRegressor(
-        max_depth = depth, 
-        random_state=0)
-
 def MyAdaBoostRegressor(base_model):
 
     return AdaBoostRegressor(
@@ -25,6 +19,11 @@ def MyAdaBoostRegressor(base_model):
         n_estimators=10,
         random_state=0)
 
+def MyTreeBaggingRegressor(depth):
+
+    return RandomForestRegressor(
+        max_depth = depth, 
+        random_state=0)
 
 def MyGradientBoostedRegressor(depth):
 
