@@ -451,7 +451,7 @@ def get_synthetic_preds_holdout(
                                    lambda: MyAdaBoostRegressor(SVR()),
                                    lambda: MyAdaBoostRegressor(DecisionTreeRegressor(max_depth=3)),
                                    lambda: MyAdaBoostRegressor(MLPRegressor()),
-                                   lambda: MyTreeBaggingRegressor(3)], ["LR", "XGB", 'SVR','Decision_Tree','MLP'
+                                   lambda: MyTreeBaggingRegressor(3)], ["LR", "XGB", 'SVR','Decision_Tree','MLP',
                                                                         "Bagging_LR", "Bagging_SVR", "Bagging_DT", "Bagging_MLP", 
                                                                         "Adaboost_LR","Adaboost_SVR","Adaboost_DT","Adaboost_MLP",
                                                                         "Random_Forest"]):
@@ -496,7 +496,7 @@ if __name__ == '__main__':
         simulate_nuisance_and_easy_treatment,
         n = 10000,
         valid_size = 0.2,
-        k = 10
+        k = 3
     )
 
     """
