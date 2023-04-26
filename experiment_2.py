@@ -492,7 +492,7 @@ def experiment(n,p):
         n = n,
         p = p,
         valid_size = 0.2,
-        k = 3
+        k = 1
     )
 
     """
