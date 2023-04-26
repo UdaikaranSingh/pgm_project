@@ -19,7 +19,8 @@ from causalml.inference.meta import (
 from causalml.propensity import ElasticNetPropensityModel
 from causalml.dataset import simulate_nuisance_and_easy_treatment
 
-from MyRegressor import MyBaggingRegressor
+from MyRegressor import *
+import os
 
 plt.style.use("fivethirtyeight")
 warnings.filterwarnings("ignore")
@@ -30,6 +31,8 @@ KEY_ACTUAL = "Actuals"
 RANDOM_SEED = 42
 LOAD_DATA = False
 
+if not os.path.exists('./results/experiment_1/'):
+    os.mkdir('./results/experiment_1/')
 
 
 def distr_plot_single_sim(
@@ -346,21 +349,21 @@ def get_synthetic_summary_holdout(synthetic_data_func, n=1000, valid_size=0.2, k
             summaries_train.append(synthetic_summary_train)
             summaries_validation.append(synthetic_summary_validation)
         
-        with open('preds_dict_train.pkl', 'wb') as handle:
+        with open('results/experiment_1/preds_dict_train.pkl', 'wb') as handle:
             pickle.dump(preds_dict_train, handle, protocol=pickle.HIGHEST_PROTOCOL)
-        with open('preds_dict_valid.pkl', 'wb') as handle:
+        with open('results/experiment_1/preds_dict_valid.pkl', 'wb') as handle:
             pickle.dump(preds_dict_valid, handle, protocol=pickle.HIGHEST_PROTOCOL)
-        with open('summaries_train.pkl', 'wb') as handle:
+        with open('results/experiment_1/summaries_train.pkl', 'wb') as handle:
             pickle.dump(summaries_train, handle, protocol=pickle.HIGHEST_PROTOCOL)
-        with open('summaries_validation.pkl', 'wb') as handle:
+        with open('results/experiment_1/summaries_validation.pkl', 'wb') as handle:
             pickle.dump(summaries_validation, handle, protocol=pickle.HIGHEST_PROTOCOL)
     
     print(preds_dict_train.keys())
-    plot_dist(preds_dict_train, ['S Learner (MBR_LR)', 'S Learner (LR)', 'S Learner (XGB)'], 'train_dist.png')
-    plot_dist(preds_dict_valid, ['S Learner (MBR_LR)', 'S Learner (LR)', 'S Learner (XGB)'], 'valid_dist.png')
-    distr_plot_single_sim(preds_dict_train, 'single_sim_dist_train.png', kind='kde', linewidth=2, bw_method=0.5,
+    plot_dist(preds_dict_train, ['S Learner (MBR_LR)', 'S Learner (LR)', 'S Learner (XGB)'], 'results/experiment_1/train_dist.png')
+    plot_dist(preds_dict_valid, ['S Learner (MBR_LR)', 'S Learner (LR)', 'S Learner (XGB)'], 'results/experiment_1/valid_dist.png')
+    distr_plot_single_sim(preds_dict_train, 'results/experiment_1/single_sim_dist_train.png', kind='kde', linewidth=2, bw_method=0.5,
                       drop_learners=[KEY_ACTUAL, 'S Learner (MBR_LR)', 'S Learner (LR)', 'S Learner (XGB)'])
-    distr_plot_single_sim(preds_dict_valid, 'single_sim_dist_prd.png', kind='kde', linewidth=2, bw_method=0.5,
+    distr_plot_single_sim(preds_dict_valid, 'results/experiment_1/single_sim_dist_valid.png', kind='kde', linewidth=2, bw_method=0.5,
                       drop_learners=[KEY_ACTUAL, 'S Learner (MBR_LR)', 'S Learner (LR)', 'S Learner (XGB)'])
     #scatter_plot_summary(preds_dict_train, 'scatterplot_dist_train.png', k = k)
     #scatter_plot_summary(preds_dict_valid, 'scatterplot_dist_valid.png', k = k)
@@ -491,5 +494,5 @@ if __name__ == '__main__':
                              """
     print(train_summary)
     print(validation_summary)
-    train_summary.to_csv('train_summary.csv')
-    validation_summary.to_csv('validation_summary.csv')
+    train_summary.to_csv('results/experiment_1/train_summary.csv')
+    validation_summary.to_csv('results/experiment_1/validation_summary.csv')
