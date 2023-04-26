@@ -32,7 +32,7 @@ KEY_GENERATED_DATA = "generated_data"
 KEY_ACTUAL = "Actuals"
 
 RANDOM_SEED = 42
-LOAD_DATA = True
+LOAD_DATA = False
 
 if not os.path.exists('./results/experiment_1/'):
     os.mkdir('./results/experiment_1/')
@@ -496,7 +496,7 @@ if __name__ == '__main__':
         simulate_nuisance_and_easy_treatment,
         n = 10000,
         valid_size = 0.2,
-        k = 1
+        k = 10
     )
 
     """
