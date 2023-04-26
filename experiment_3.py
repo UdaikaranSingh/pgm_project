@@ -513,7 +513,7 @@ import multiprocessing
 
 if __name__ == '__main__':
     sd_values = [1, 2, 5, 10]
-    n_values = [200, 500, 1000, 10_000, 100_000]
+    n_values = [200, 500, 1000, 10_000, 50_000]
     
     with multiprocessing.Pool(processes=4) as pool:
         pool.starmap(experiment, [(n,sd) for n in n_values for sd in sd_values])
